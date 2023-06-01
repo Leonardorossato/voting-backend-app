@@ -5,12 +5,12 @@ export type CreatePollField = {
 };
 
 export type JoinPollField = {
-  poldId: string;
+  polldId: string;
   name: string;
 };
 
 export type RejoinPollField = {
-  polId: string;
+  pollId: string;
   userId: string;
   name: string;
 };
