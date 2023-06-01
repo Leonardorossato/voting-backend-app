@@ -29,7 +29,7 @@ export class RedisModule {
   }: RedisAsyncModuleOptions): Promise<DynamicModule> {
     const redisProvider = {
       provide: IORedisKey,
-      usefactory: async (...args) => {
+      useFactory: async (...args) => {
         const { connectionOptions, onClientReady } = await usefactory(...args);
         const client = new IORedis(connectionOptions);
         onClientReady(client);
@@ -40,8 +40,8 @@ export class RedisModule {
     return {
       module: RedisModule,
       imports,
-      providers: [],
-      exports: [],
+      providers: [redisProvider],
+      exports: [redisProvider],
     };
   }
 }
