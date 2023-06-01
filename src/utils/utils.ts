@@ -1,9 +1,11 @@
-import { customAlphabet, nanoid } from 'nanoid';
+import { createHash } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
-export const createPollID = customAlphabet(
-  '0123456789abcdefghijklmnopqrstuvwxyz',
-  6,
-);
+export const createPollID = () => {
+  const id = uuidv4();
+  const hash = createHash('md5').update(id).digest('hex');
+  return hash.substr(0, 6);
+};
 
-export const createUserID = () => nanoid();
-export const createNominationID = () => nanoid(8);
+export const createUserID = () => uuidv4();
+export const createNominationID = () => uuidv4();
