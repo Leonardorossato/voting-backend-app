@@ -16,9 +16,9 @@ export class CreatePollDto {
 }
 
 export class JoinPollDto {
-  @ApiProperty({ minLength: 6, maxLength: 6 })
-  polId: string;
+  @ApiProperty()
+  pollId: string;
 
-  @ApiProperty({ minLength: 1, maxLength: 18 })
+  @ApiProperty()
   name: string;
 }
