@@ -10,6 +10,7 @@ declare global {
       REDIS_PORT: number;
       POOL_DURATION: number;
       JWT_SECRET: string;
+      POLL_APLHABET: string;
     }
   }
 }
