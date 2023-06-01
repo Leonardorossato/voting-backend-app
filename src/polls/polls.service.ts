@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePollDto } from './dto/create-poll.dto';
-import { UpdatePollDto } from './dto/update-poll.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  CreatePollField,
+  JoinPollField,
+  RejoinPollField,
+} from 'src/types/types';
+import { createPollID, createUserID } from 'src/utils/utils';
 
 @Injectable()
 export class PollsService {
-  create(createPollDto: CreatePollDto) {
-    return 'This action adds a new poll';
+  create(fields: CreatePollField) {
+    try {
+      const pollId = createPollID();
+      const userId = createUserID();
+      return {
+        ...fields,
+        userId,
+        pollId,
+      };
+    } catch (error) {
+      throw new HttpException('Error creating poll', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  findAll() {
-    return `This action returns all polls`;
+  async joinPoll(dto: JoinPollField) {
+    try {
+      const userId = createUserID();
+      return {
+        ...dto,
+        userId,
+      };
+    } catch (error) {
+      throw new HttpException('Error joining poll', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} poll`;
-  }
-
-  update(id: number, updatePollDto: UpdatePollDto) {
-    return `This action updates a #${id} poll`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} poll`;
+  async rejoinPoll(fields: RejoinPollField) {
+    return fields;
   }
 }
