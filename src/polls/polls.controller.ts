@@ -1,34 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { PollsService } from './polls.service';
-import { CreatePollDto } from './dto/create-poll.dto';
-import { UpdatePollDto } from './dto/update-poll.dto';
+import { CreatePollDto, JoinPollDto } from './dto/create-poll.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { RejoinPollField } from 'src/types/types';
 
+@ApiTags('Enquetes')
 @Controller('polls')
 export class PollsController {
   constructor(private readonly pollsService: PollsService) {}
 
-  @Post()
-  create(@Body() createPollDto: CreatePollDto) {
+  @Post('/create')
+  async create(@Body() createPollDto: CreatePollDto) {
     return this.pollsService.create(createPollDto);
   }
 
-  @Get()
-  findAll() {
-    return this.pollsService.findAll();
-  }
+  // @Post('/join')
+  // async join(@Body() dto: JoinPollDto) {
+  //   return await this.pollsService.joinPoll(dto);
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pollsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePollDto: UpdatePollDto) {
-    return this.pollsService.update(+id, updatePollDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pollsService.remove(+id);
+  @Post('/rejoin')
+  async rejoin() {
+    return await this.pollsService.rejoinPoll({
+      name: 'Eu',
+      pollId: 'aa5ssadsa4d684d',
+      userId: 'dsa5d4sa5',
+    });
   }
 }
