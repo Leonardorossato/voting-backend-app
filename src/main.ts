@@ -7,7 +7,7 @@ async function bootstrap() {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Voting Backend Api')
     .setDescription(
-      'Voting Backend Api with NestJs, TypeOrm, Swagger, Postgres and Docker',
+      'Voting Backend Api with NestJs, Redis, Swagger and Docker',
     )
     .setVersion('1.0')
     .build();
