@@ -5,5 +5,6 @@ import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true }), PollsModule, RedisModule],
+  providers: [RedisModule]
 })
 export class AppModule {}
