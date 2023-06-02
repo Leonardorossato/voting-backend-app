@@ -14,10 +14,10 @@ export class PollsController {
     return this.pollsService.create(createPollDto);
   }
 
-  // @Post('/join')
-  // async join(@Body() dto: JoinPollDto) {
-  //   return await this.pollsService.joinPoll(dto);
-  // }
+  @Post('/join')
+  async join(@Body() dto: JoinPollDto) {
+    return await this.pollsService.joinPoll(dto);
+  }
 
   @Post('/rejoin')
   async rejoin() {
