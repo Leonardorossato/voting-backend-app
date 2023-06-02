@@ -5,7 +5,7 @@ export type CreatePollField = {
 };
 
 export type JoinPollField = {
-  polldId: string;
+  pollId: string;
   name: string;
 };
 
@@ -13,6 +13,13 @@ export type RejoinPollField = {
   pollId: string;
   userId: string;
   name: string;
+};
+
+export type CreatePollData = {
+  pollId: string;
+  userId: string;
+  votesPerVoter: number;
+  topic: string;
 };
 
 export type AddParticipantData = {
