@@ -18,9 +18,9 @@ export class PollRepository {
 
   constructor(
     config: ConfigService,
-    @Inject(IORedisKey) private readonly redisClient: Redis
+    @Inject(IORedisKey) private readonly redisClient: Redis,
   ) {
-    this.tll = config.get('POLL_DURATION');
+    this.tll = process.env.POOL_DURATION;
   }
 
   async createPoll({
@@ -38,7 +38,7 @@ export class PollRepository {
     };
 
     this.logger.log(
-      `Creating new poll ${JSON.stringify(initialPoll, null, 2)} with TLL :  ${
+      `Creating new poll ${JSON.stringify(initialPoll, null, 2)} with TLL: ${
         this.tll
       }`,
     );
@@ -48,8 +48,8 @@ export class PollRepository {
     try {
       await this.redisClient
         .multi([
-          ['send_command', 'JSON.SER', key, '.', JSON.stringify(initialPoll)],
-          ['expires', key, this.tll],
+          ['send_command', 'JSON.SET', key, '.', JSON.stringify(initialPoll)],
+          ['expire', key, this.tll],
         ])
         .exec();
       return initialPoll;
