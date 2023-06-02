@@ -38,6 +38,7 @@ export class PollsService {
         },
       );
       return {
+        poll: createPoll,
         access_token: singed,
       };
     } catch (error) {
@@ -65,7 +66,7 @@ export class PollsService {
           subject: userId,
         },
       );
-      return { access_token: token };
+      return { access_token: token, poll: joinPoll };
     } catch (error) {
       throw new HttpException('Error joining poll', HttpStatus.BAD_REQUEST);
     }

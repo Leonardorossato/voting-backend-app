@@ -71,7 +71,7 @@ export class PollRepository {
     try {
       const command: Command = new Command('JSON.GET', [key, '-']);
       const currentPoll = await this.redisClient.sendCommand(command);
-      this.logger.verbose(currentPoll as string);
+      this.logger.verbose(currentPoll);
       return JSON.parse(currentPoll as string);
     } catch (error) {
       this.logger.error(`Error to get poll with: ${pollId}`);
