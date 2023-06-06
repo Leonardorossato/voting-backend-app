@@ -46,21 +46,21 @@ export class PollsService {
     }
   }
 
-  async joinPoll(dto: JoinPollField) {
+  async joinPoll(fields: JoinPollField) {
     try {
       const userId = createUserID();
       this.logger.debug(
-        `Fetching with id:${dto.pollId} for user with id: ${userId}`,
+        `Fetching with id:${fields.pollId} for user with id: ${userId}`,
       );
-      const joinPoll = await this.pollRepository.getPoll(dto.pollId);
+      const joinPoll = await this.pollRepository.getPoll(fields.pollId);
       this.logger.debug(
         `Creating token for pollId: ${joinPoll.id} and user name: ${userId}`,
       );
 
-      const token = this.jwtService.sign(
+      const token = await this.jwtService.sign(
         {
           pollId: joinPoll.id,
-          name: dto.name,
+          name: fields.name,
         },
         {
           subject: userId,
