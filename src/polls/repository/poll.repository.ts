@@ -66,13 +66,14 @@ export class PollRepository {
 
   async getPoll(pollId: string): Promise<Poll> {
     this.logger.log(`Attempting to get poll with: ${pollId}`);
-    const key = `poll: ${pollId}`;
+    const key = `polls: ${pollId}`;
 
     try {
       const command: Command = new Command('JSON.GET', [key, '-']);
       const currentPoll = await this.redisClient.sendCommand(command);
-      this.logger.verbose(currentPoll);
-      return JSON.parse(currentPoll as string);
+      const result = currentPoll as string;
+      this.logger.verbose(result);
+      return JSON.parse(result);
     } catch (error) {
       this.logger.error(`Error to get poll with: ${pollId}`);
       throw error;
