@@ -18,9 +18,9 @@ export class PollRepository {
 
   constructor(
     config: ConfigService,
-    @Inject(IORedisKey) private readonly redisClient: Redis
+    @Inject(IORedisKey) private readonly redisClient: Redis,
   ) {
-    this.tll = config.get('POLL_DURATION');
+    this.tll = process.env.POOL_DURATION;
   }
 
   async createPoll({
@@ -38,7 +38,7 @@ export class PollRepository {
     };
 
     this.logger.log(
-      `Creating new poll ${JSON.stringify(initialPoll, null, 2)} with TLL :  ${
+      `Creating new poll ${JSON.stringify(initialPoll, null, 2)} with TLL: ${
         this.tll
       }`,
     );
@@ -48,8 +48,8 @@ export class PollRepository {
     try {
       await this.redisClient
         .multi([
-          ['send_command', 'JSON.SER', key, '.', JSON.stringify(initialPoll)],
-          ['expires', key, this.tll],
+          ['send_command', 'JSON.SET', key, '.', JSON.stringify(initialPoll)],
+          ['expire', key, this.tll],
         ])
         .exec();
       return initialPoll;
@@ -66,13 +66,14 @@ export class PollRepository {
 
   async getPoll(pollId: string): Promise<Poll> {
     this.logger.log(`Attempting to get poll with: ${pollId}`);
-    const key = `poll: ${pollId}`;
+    const key = `polls: ${pollId}`;
 
     try {
       const command: Command = new Command('JSON.GET', [key, '-']);
       const currentPoll = await this.redisClient.sendCommand(command);
-      this.logger.verbose(currentPoll as string);
-      return JSON.parse(currentPoll as string);
+      const result = currentPoll as string;
+      this.logger.verbose(result);
+      return JSON.parse(result);
     } catch (error) {
       this.logger.error(`Error to get poll with: ${pollId}`);
       throw error;

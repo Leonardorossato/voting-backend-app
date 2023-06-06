@@ -6,11 +6,15 @@ import {
 } from 'src/types/types';
 import { createPollID, createUserID } from 'src/utils/utils';
 import { PollRepository } from './repository/poll.repository';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class PollsService {
   private readonly logger = new Logger(PollsService.name);
-  constructor(private readonly pollRepository: PollRepository) {}
+  constructor(
+    private readonly pollRepository: PollRepository,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async create(fields: CreatePollField) {
     try {
@@ -21,20 +25,48 @@ export class PollsService {
         pollId,
         userId,
       });
-      return createPoll;
+      this.logger.debug(
+        `Creating a token for pollId: ${createPoll.id} and userId: ${userId}`,
+      );
+      const singed = this.jwtService.sign(
+        {
+          pollId: createPoll.id,
+          name: fields.name,
+        },
+        {
+          subject: userId,
+        },
+      );
+      return {
+        poll: createPoll,
+        access_token: singed,
+      };
     } catch (error) {
       throw new HttpException('Error creating poll', HttpStatus.BAD_REQUEST);
     }
   }
 
-  async joinPoll(dto: JoinPollField) {
+  async joinPoll(fields: JoinPollField) {
     try {
       const userId = createUserID();
       this.logger.debug(
-        `Fetching with id:${dto.pollId} for user with id: ${userId}`,
+        `Fetching with id:${fields.pollId} for user with id: ${userId}`,
       );
-      const joinPoll = await this.pollRepository.getPoll(dto.pollId);
-      return joinPoll;
+      const joinPoll = await this.pollRepository.getPoll(fields.pollId);
+      this.logger.debug(
+        `Creating token for pollId: ${joinPoll.id} and user name: ${userId}`,
+      );
+
+      const token = await this.jwtService.sign(
+        {
+          pollId: joinPoll.id,
+          name: fields.name,
+        },
+        {
+          subject: userId,
+        },
+      );
+      return { access_token: token, poll: joinPoll };
     } catch (error) {
       throw new HttpException('Error joining poll', HttpStatus.BAD_REQUEST);
     }
