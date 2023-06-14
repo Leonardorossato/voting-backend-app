@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -35,6 +36,7 @@ export class PollRepository {
       votesPerVoter,
       participants: {},
       adminId: userId,
+      hasStarted: false,
     };
 
     this.logger.log(
@@ -109,6 +111,30 @@ export class PollRepository {
         `Error failed to add participant with userId/name: ${userId}/${name}`,
       );
       throw error;
+    }
+  }
+
+  async removeParticipant(pollID: string, userID: string): Promise<Poll> {
+    this.logger.log(`removing userID: ${userID} from poll: ${pollID}`);
+
+    const key = `polls:${pollID}`;
+    const participantPath = `.participants.${userID}`;
+
+    try {
+      const command: Command = new Command('JSON.DEL', [
+        key,
+        '-',
+        participantPath,
+      ]);
+      const currentPoll = await this.redisClient.sendCommand(command);
+      const result = currentPoll as string;
+      return this.getPoll(result);
+    } catch (e) {
+      this.logger.error(
+        `Failed to remove userID: ${userID} from poll: ${pollID}`,
+        e,
+      );
+      throw new InternalServerErrorException('Failed to remove participant');
     }
   }
 }

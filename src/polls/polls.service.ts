@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
+  AddParticipantData,
   CreatePollField,
   JoinPollField,
   RejoinPollField,
@@ -7,6 +8,7 @@ import {
 import { createPollID, createUserID } from 'src/utils/utils';
 import { PollRepository } from './repository/poll.repository';
 import { JwtService } from '@nestjs/jwt';
+import { Poll } from 'src/shared';
 
 @Injectable()
 export class PollsService {
@@ -83,5 +85,28 @@ export class PollsService {
     } catch (error) {
       throw new HttpException('Error joining poll', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async addParticipant(addParticipant: AddParticipantData): Promise<Poll> {
+    return await this.pollRepository.addParticipant(addParticipant);
+  }
+
+  async removeParticipant(pollId: string, userId: string): Promise<Poll> {
+    try {
+      const poll = await this.pollRepository.getPoll(pollId);
+      if (!poll.hasStarted) {
+        const updatePoll = await this.pollRepository.removeParticipant(
+          pollId,
+          userId,
+        );
+        return updatePoll;
+      }
+    } catch (error) {
+      throw new HttpException('Error removing participant', HttpStatus.BAD_REQUEST)
+    }
+  }
+
+  async getPoll(pollId: string): Promise<Poll> {
+    return await this.pollRepository.getPoll(pollId);
   }
 }
