@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Max, Min } from 'class-validator';
+import { IsInt, IsString, Max, Min } from 'class-validator';
 
 export class CreatePollDto {
   @ApiProperty()
@@ -21,4 +21,10 @@ export class JoinPollDto {
 
   @ApiProperty()
   name: string;
+}
+
+export class NominationDto {
+  @IsString()
+  @ApiProperty()
+  text: string;
 }

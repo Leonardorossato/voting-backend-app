@@ -1,14 +1,19 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Poll } from 'src/shared';
 import {
+  AddNominationFields,
   AddParticipantData,
   CreatePollField,
   JoinPollField,
   RejoinPollField,
 } from 'src/types/types';
-import { createPollID, createUserID } from 'src/utils/utils';
+import {
+  createNominationID,
+  createPollID,
+  createUserID,
+} from 'src/utils/utils';
 import { PollRepository } from './repository/poll.repository';
-import { JwtService } from '@nestjs/jwt';
-import { Poll } from 'src/shared';
 
 @Injectable()
 export class PollsService {
@@ -102,11 +107,33 @@ export class PollsService {
         return updatePoll;
       }
     } catch (error) {
-      throw new HttpException('Error removing participant', HttpStatus.BAD_REQUEST)
+      throw new HttpException(
+        'Error removing participant',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
   async getPoll(pollId: string): Promise<Poll> {
     return await this.pollRepository.getPoll(pollId);
+  }
+
+  async addNomination({
+    pollId,
+    userId,
+    text,
+  }: AddNominationFields): Promise<Poll> {
+    return await this.pollRepository.addNomination({
+      pollId,
+      nominationId: createNominationID(),
+      nomination: {
+        userId,
+        text,
+      },
+    });
+  }
+
+  async removeNomination(pollId: string, nominationId: string): Promise<Poll> {
+    return await this.pollRepository.removeNomination(pollId, nominationId);
   }
 }
