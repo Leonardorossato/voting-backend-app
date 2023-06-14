@@ -31,10 +31,10 @@ export class GatewayGuard implements CanActivate {
       const payload = this.jwtService.verify<AuthPayload & { sub: string }>(
         token,
       );
-      this.logger.debug(`Validating admin using token payload: ${payload}`);
-      const { userId, pollId } = payload;
+      this.logger.debug(`Validating admin using token payload`, payload);
+      const { sub, pollId } = payload;
       const poll = await this.pollService.getPoll(pollId);
-      if (userId !== pollId) {
+      if (sub !== poll.adminId) {
         throw new HttpException(
           'Admin privileges required',
           HttpStatus.INTERNAL_SERVER_ERROR,
