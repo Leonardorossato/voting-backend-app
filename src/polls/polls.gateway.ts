@@ -1,4 +1,6 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -7,10 +9,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { PollsService } from './polls.service';
-import { Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Logger, UseGuards } from '@nestjs/common';
 import { Namespace, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { SocketWithAuth } from 'src/types/types';
+import { GatewayGuard } from 'src/guards/gateway.admin.guard';
 
 @WebSocketGateway({
   namespace: 'polls',
@@ -77,8 +80,28 @@ export class PollsGateway
     }
   }
 
-  @SubscribeMessage('test')
-  async test() {
-    throw new Error('plain operation');
+  @UseGuards(GatewayGuard)
+  @SubscribeMessage('remove_participant')
+  async removeParticipant(
+    @MessageBody('id') id: string,
+    @ConnectedSocket() client: SocketWithAuth,
+  ) {
+    try {
+      this.logger.debug(
+        `Attempting to remove participant: ${id} from poll ${client.pollId}`,
+      );
+      const updatedPoll = await this.pollsService.removeParticipant(
+        client.pollId,
+        id,
+      );
+      if (updatedPoll) {
+        this.io.to(client.pollId).emit('poll_updated', updatedPoll);
+      }
+    } catch (error) {
+      throw new HttpException(
+        'Error removing participants from poll by admin',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
