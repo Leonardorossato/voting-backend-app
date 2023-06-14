@@ -18,6 +18,12 @@ export type RejoinPollField = {
   name: string;
 };
 
+export type AddNominationData = {
+  pollId: string;
+  nominationId: string;
+  nomination: string;
+};
+
 export type CreatePollData = {
   pollId: string;
   userId: string;
