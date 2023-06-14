@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { PollsService } from './polls.service';
-import { PollsController } from './polls.controller';
-import { RedisModule } from '../redis/redis.module';
-import { PollRepository } from './repository/poll.repository';
-import { ConfigModule } from '@nestjs/config';
 import { jwtModule, redisModule } from 'src/config/module.config';
+import { RedisModule } from '../redis/redis.module';
+import { PollsController } from './polls.controller';
+import { PollsGateway } from './polls.gateway';
+import { PollsService } from './polls.service';
+import { PollRepository } from './repository/poll.repository';
 
 @Module({
   imports: [RedisModule, redisModule, jwtModule],
   controllers: [PollsController],
-  providers: [PollsService, PollRepository],
+  providers: [PollsService, PollRepository, PollsGateway],
 })
 export class PollsModule {}

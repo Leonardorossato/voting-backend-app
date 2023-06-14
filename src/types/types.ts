@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { Socket } from 'socket.io';
 
 export type CreatePollField = {
   topic: string;
@@ -30,10 +31,11 @@ export type AddParticipantData = {
   name: string;
 };
 
-type AuthPayload = {
+export type AuthPayload = {
   userId: string;
   pollId: string;
   name: string;
 };
 
 export type RequestWithAuth = Request & AuthPayload;
+export type SocketWithAuth = Socket & AuthPayload;
