@@ -14,6 +14,7 @@ import { Namespace, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { SocketWithAuth } from 'src/types/types';
 import { GatewayGuard } from 'src/guards/gateway.admin.guard';
+import { NominationDto } from './dto/create-poll.dto';
 
 @WebSocketGateway({
   namespace: 'polls',
@@ -97,6 +98,55 @@ export class PollsGateway
       if (updatedPoll) {
         this.io.to(client.pollId).emit('poll_updated', updatedPoll);
       }
+    } catch (error) {
+      throw new HttpException(
+        'Error removing participants from poll by admin',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @UseGuards(GatewayGuard)
+  @SubscribeMessage('nominate')
+  async nomite(
+    @MessageBody() nomination: NominationDto,
+    @ConnectedSocket() client: SocketWithAuth,
+  ) {
+    try {
+      this.logger.debug(
+        `Attempting to remove participant: ${client.id} from poll ${client.pollId}\n${nomination.text}`,
+      );
+      const updatedPoll = await this.pollsService.addNomination({
+        pollId: client.pollId,
+        userId: client.userId,
+        text: nomination.text,
+      });
+
+      return this.io.to(client.pollId).emit('poll_updated', updatedPoll);
+    } catch (error) {
+      throw new HttpException(
+        'Error removing participants from poll by admin',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @UseGuards(GatewayGuard)
+  @SubscribeMessage('remove_nomination')
+  async removeNomination(
+    @MessageBody('id') nominationId: string,
+    @ConnectedSocket() client: SocketWithAuth,
+  ) {
+    try {
+      this.logger.debug(
+        `Attempting to remove participant: ${client.id} from poll ${client.pollId}`,
+      );
+      const updatedPoll = await this.pollsService.removeNomination(
+        client.pollId,
+        nominationId,
+      );
+
+      return this.io.to(client.pollId).emit('poll_updated', updatedPoll);
     } catch (error) {
       throw new HttpException(
         'Error removing participants from poll by admin',
