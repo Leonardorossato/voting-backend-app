@@ -31,7 +31,7 @@ export type AddParticipantData = {
   name: string;
 };
 
-type AuthPayload = {
+export type AuthPayload = {
   userId: string;
   pollId: string;
   name: string;
