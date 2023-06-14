@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { Socket } from 'socket.io';
+import { Nomination } from 'src/shared';
 
 export type CreatePollField = {
   topic: string;
@@ -21,7 +22,7 @@ export type RejoinPollField = {
 export type AddNominationData = {
   pollId: string;
   nominationId: string;
-  nomination: string;
+  nomination: Nomination;
 };
 
 export type CreatePollData = {
