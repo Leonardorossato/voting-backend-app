@@ -40,6 +40,7 @@ export class PollRepository {
       votesPerVoter,
       participants: {},
       nominations: {},
+      rankings: {},
       adminId: userId,
       hasStarted: false,
     };
