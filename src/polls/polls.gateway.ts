@@ -154,4 +154,29 @@ export class PollsGateway
       );
     }
   }
+
+  @UseGuards(GatewayGuard)
+  @SubscribeMessage('start_vote')
+  async startVote(@ConnectedSocket() client: SocketWithAuth): Promise<void> {
+    this.logger.debug(`Attempting to start voting for poll: ${client.pollId}`);
+    const updatedPoll = await this.pollsService.startPoll(client.pollId);
+    this.io.to(client.pollId).emit('poll_updated', updatedPoll);
+  }
+
+  @UseGuards(GatewayGuard)
+  @SubscribeMessage('remove_nomination')
+  async submtiRankings(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody('rankings') rankings: string[],
+  ): Promise<void> {
+    this.logger.debug(
+      `Sumitting votes for user: ${client.userId} belonging to pollId: ${client.pollId}`,
+    );
+    const updatedPoll = await this.pollsService.sumitedRankings({
+      pollId: client.pollId,
+      userId: client.userId,
+      rankings,
+    });
+    this.io.to(client.pollId).emit('poll_updated', updatedPoll);
+  }
 }

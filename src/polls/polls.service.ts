@@ -7,6 +7,7 @@ import {
   CreatePollField,
   JoinPollField,
   RejoinPollField,
+  SubmitRankingsFields,
 } from 'src/types/types';
 import {
   createNominationID,
@@ -135,5 +136,28 @@ export class PollsService {
 
   async removeNomination(pollId: string, nominationId: string): Promise<Poll> {
     return await this.pollRepository.removeNomination(pollId, nominationId);
+  }
+
+  async startPoll(pollId: string): Promise<Poll> {
+    return await this.pollRepository.startPoll(pollId);
+  }
+
+  async sumitedRankings(
+    sumitedRankingsData: SubmitRankingsFields,
+  ): Promise<Poll> {
+    try {
+      const hasPollStarted = await this.pollRepository.getPoll(
+        sumitedRankingsData.pollId,
+      );
+      if (!hasPollStarted) {
+        throw new HttpException(
+          'Participants cannot rank util the poll has started',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      return await this.pollRepository.addParticipantRankings(
+        sumitedRankingsData,
+      );
+    } catch (error) {}
   }
 }
