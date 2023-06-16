@@ -7,8 +7,14 @@ export type Nomination = {
   text: string;
 };
 
+type NominationId = string;
+
 export type Nominations = {
   [nominationId: string]: Nomination;
+};
+
+export type Rankings = {
+  [userId: string]: NominationId;
 };
 
 export type Poll = {
@@ -18,5 +24,6 @@ export type Poll = {
   participants: Participants;
   adminId: string;
   nominations: Nominations;
+  rankings: Rankings;
   hasStarted: boolean;
 };
