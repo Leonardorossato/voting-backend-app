@@ -13,6 +13,7 @@ import { Poll } from 'src/shared';
 import {
   AddNominationData,
   AddParticipantData,
+  AddParticipantRankingsData,
   CreatePollData,
 } from 'src/types/types';
 
@@ -193,6 +194,51 @@ export class PollRepository {
         e,
       );
       throw new InternalServerErrorException('Failed to remove a nomination');
+    }
+  }
+
+  async startPoll(pollId: string): Promise<Poll> {
+    try {
+      this.logger.log(`Setting hasStarted for pollId: ${pollId}`);
+      const key = `polls: ${pollId}`;
+      const command: Command = new Command('JSON.SET', [
+        key,
+        'hasStarted',
+        JSON.stringify(true),
+      ]);
+      const currentPoll = await this.redisClient.sendCommand(command);
+      const result = currentPoll as string;
+      return this.getPoll(result);
+    } catch (error) {
+      throw new Error('Error to start this poll');
+    }
+  }
+
+  async addParticipantRankings({
+    pollId,
+    userId,
+    rankings,
+  }: AddParticipantRankingsData): Promise<Poll> {
+    try {
+      this.logger.log(
+        `Attempting to add rankings for userId/name: ${userId} to pollId: ${pollId}`,
+        rankings,
+      );
+      const key = `polls: ${pollId}`;
+      const rankingPath = `rankings.${userId}`;
+      const command: Command = new Command('JSON.SET', [
+        key,
+        'hasStarted',
+        rankingPath,
+        JSON.stringify(rankingPath),
+      ]);
+      const currentPoll = await this.redisClient.sendCommand(command);
+      const result = currentPoll as string;
+      return this.getPoll(result);
+    } catch (error) {
+      throw new Error(
+        `Failed to add rankings for userId/name: ${userId} to pollId: ${pollId}`,
+      );
     }
   }
 }
