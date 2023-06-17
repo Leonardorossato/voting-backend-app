@@ -14,7 +14,7 @@ export type Nominations = {
 };
 
 export type Rankings = {
-  [userId: string]: NominationId;
+  [userId: string]: NominationId[];
 };
 
 export type Results = Array<{
