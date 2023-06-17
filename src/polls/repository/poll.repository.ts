@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Command, Redis } from 'ioredis';
 import { IORedisKey } from 'src/redis/redis.module';
-import { Poll } from 'src/shared';
+import { Poll, Results } from 'src/shared';
 import {
   AddNominationData,
   AddParticipantData,
@@ -42,6 +42,7 @@ export class PollRepository {
       participants: {},
       nominations: {},
       rankings: {},
+      results: [],
       adminId: userId,
       hasStarted: false,
     };
@@ -238,6 +239,46 @@ export class PollRepository {
     } catch (error) {
       throw new Error(
         `Failed to add rankings for userId/name: ${userId} to pollId: ${pollId}`,
+      );
+    }
+  }
+
+  async addResults(pollId: string, results: Results): Promise<Poll> {
+    try {
+      this.logger.log(
+        `Attempting to add results to pollId: ${pollId}`,
+        JSON.stringify(results),
+      );
+      const key = `polls: ${pollId}`;
+      const resultsPath = `results`;
+      const command: Command = new Command('JSON.SET', [
+        key,
+        'hasStarted',
+        resultsPath,
+        JSON.stringify(resultsPath),
+      ]);
+      const currentPoll = await this.redisClient.sendCommand(command);
+      const result = currentPoll as string;
+      return this.getPoll(result);
+    } catch (error) {
+      throw new HttpException(
+        `Error to add results for pollId ${pollId}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async deletePoll(pollId: string) {
+    try {
+      const key = `polls: ${pollId}`;
+      const command: Command = new Command('JSON.DEL', [key]);
+      const currentPoll = await this.redisClient.sendCommand(command);
+      const result = currentPoll as string;
+      return this.getPoll(result);
+    } catch (error) {
+      throw new HttpException(
+        `Failed to delete poll ${pollId}`,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }

@@ -179,4 +179,12 @@ export class PollsGateway
     });
     this.io.to(client.pollId).emit('poll_updated', updatedPoll);
   }
+
+  @UseGuards(GatewayGuard)
+  @SubscribeMessage('close_poll')
+  async closePoll(@ConnectedSocket() client: SocketWithAuth) {
+    this.logger.debug(`Closing poll: ${client.pollId} and computing result`);
+    await this.pollsService.computerResults(client.pollId);
+    return this.io.to(client.pollId).emit('poll_updated');
+  }
 }
