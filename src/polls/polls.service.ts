@@ -15,6 +15,7 @@ import {
   createUserID,
 } from 'src/utils/utils';
 import { PollRepository } from './repository/poll.repository';
+import getResultsShared from 'src/shared/get.results.shared';
 
 @Injectable()
 export class PollsService {
@@ -158,6 +159,32 @@ export class PollsService {
       return await this.pollRepository.addParticipantRankings(
         sumitedRankingsData,
       );
-    } catch (error) {}
+    } catch (error) {
+      throw new HttpException(
+        'Error in sumited ranking by pollId',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async computerResults(pollId: string): Promise<Poll> {
+    try {
+      const poll = await this.pollRepository.getPoll(pollId);
+      const results = getResultsShared(
+        poll.rankings,
+        poll.nominations,
+        poll.votesPerVoter,
+      );
+      return await this.pollRepository.addResults(pollId, results);
+    } catch (error) {
+      throw new HttpException(
+        `Error in computer the results`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async cancelPoll(pollId: string) {
+    return await this.pollRepository.deletePoll(pollId);
   }
 }
